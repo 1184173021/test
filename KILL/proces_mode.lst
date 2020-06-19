@@ -1,0 +1,87 @@
+C51 COMPILER V9.53.0.0   PROCES_MODE                                                       06/10/2020 21:47:37 PAGE 1   
+
+
+C51 COMPILER V9.53.0.0, COMPILATION OF MODULE PROCES_MODE
+OBJECT MODULE PLACED IN .\proces_mode.obj
+COMPILER INVOKED BY: d:\Keil_v5\C51\BIN\C51.EXE ..\APP\proces_mode.c OPTIMIZE(8,SPEED) BROWSE INCDIR(..\BSP;..\COMMON) D
+                    -EBUG OBJECTEXTEND PRINT(.\proces_mode.lst) TABS(2) OBJECT(.\proces_mode.obj)
+
+line level    source
+
+   1          #include "header.h"
+   2          
+   3          
+   4          
+   5          //关机处理
+   6          void close_process(void)
+   7          {
+   8   1          led_dispose(0x00);
+   9   1          printf("m0\n");
+  10   1      }
+  11          
+  12          //清洁模式
+  13          void whiten_process(void)
+  14          {
+  15   1          led_dispose(1);
+  16   1          printf("m1\n");
+  17   1      }
+  18          //美白模式
+  19          void clean_process(void)
+  20          {
+  21   1          led_dispose(2);
+  22   1          printf("m2\n");
+  23   1      }
+  24          //按摩模式
+  25          void massage_process(void)
+  26          {
+  27   1          led_dispose(3);
+  28   1          printf("m3\n");
+  29   1      }
+  30          //敏感模式
+  31          void sensitive_process(void)
+  32          {
+  33   1          led_dispose(4);
+  34   1          printf("m4\n");
+  35   1      }
+  36          
+  37          //处理模式
+  38          void proces_mode(void)
+  39          {
+  40   1          switch (key.work_mode)
+  41   1          {
+  42   2          case CLOSE:
+  43   2              close_process();
+  44   2              break;
+  45   2          case WHITEN_ONE://清洁模式
+  46   2              whiten_process();
+  47   2              break;
+  48   2          case CLEAN_TWO://美白模式
+  49   2              clean_process();
+  50   2              break;
+  51   2          case MASSAGE_THREE://按摩模式
+  52   2              massage_process();
+  53   2              break;
+  54   2          case SENSITIVE_FOUR://敏感模式
+C51 COMPILER V9.53.0.0   PROCES_MODE                                                       06/10/2020 21:47:37 PAGE 2   
+
+  55   2              sensitive_process();
+  56   2              break;
+  57   2          default:
+  58   2              break;
+  59   2          }
+  60   1      }
+  61          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    104    ----
+   CONSTANT SIZE    =     20    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

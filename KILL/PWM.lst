@@ -1,0 +1,84 @@
+C51 COMPILER V9.53.0.0   PWM                                                               06/10/2020 21:47:37 PAGE 1   
+
+
+C51 COMPILER V9.53.0.0, COMPILATION OF MODULE PWM
+OBJECT MODULE PLACED IN .\PWM.obj
+COMPILER INVOKED BY: d:\Keil_v5\C51\BIN\C51.EXE ..\BSP\PWM.c OPTIMIZE(8,SPEED) BROWSE INCDIR(..\BSP;..\COMMON) DEBUG OBJ
+                    -ECTEXTEND PRINT(.\PWM.lst) TABS(2) OBJECT(.\PWM.obj)
+
+line level    source
+
+   1          #include "header.h"
+   2          
+   3          
+   4          void PWM_DEAD_TIME_VALUE(UINT16 DeadTimeData)
+   5          {
+   6   1        UINT8 deadtmphigh,deadtmplow;
+   7   1        deadtmplow = DeadTimeData;
+   8   1        deadtmphigh = DeadTimeData>>8;
+   9   1        BIT_TMP = EA;
+  10   1        if (deadtmphigh==0x01)
+  11   1        {
+  12   2          EA = 0;
+  13   2          TA = 0xAA;
+  14   2          TA = 0x55;
+  15   2          PDTEN|=0x10;
+  16   2        }
+  17   1        TA = 0xAA;
+  18   1        TA = 0x55;
+  19   1        PDTCNT = deadtmplow;
+  20   1        EA = BIT_TMP;
+  21   1      }
+  22          
+  23          /*****************************************************
+  24          *函数功能：PWM初始化
+  25          *输入参数：NULL
+  26          *返 回 值：NULL
+  27          *****************************************************/
+  28          //uint8_t count8[10]; 
+  29          void pwm_init(void)
+  30          {
+  31   1           Set_All_GPIO_Quasi_Mode;
+  32   1          PWM4_P01_OUTPUT_ENABLE;
+  33   1          PWM5_P15_OUTPUT_ENABLE;  
+  34   1      
+  35   1          PWM_COMPLEMENTARY_MODE;         //Only this mode support deat time function
+  36   1          PWM_CLOCK_DIV_8;
+  37   1          PWMPH = 0x07;
+  38   1        PWMPL = 0xCF;
+  39   1      
+  40   1          set_SFRPAGE;                    // PWM4 and PWM5 duty value need set SFPPAGE 1
+  41   1          PWM4H = 0x01;
+  42   1          PWM4L = 0xCF;
+  43   1          PWM45_DEADTIME_ENABLE;
+  44   1          PWM_DEAD_TIME_VALUE(0x1FF);     //value never over 0x1FF
+  45   1          clr_SFRPAGE;
+  46   1          //Please always setting Dead time if needed before PWM run.   
+  47   1          set_LOAD;
+  48   1          set_PWMRUN;
+  49   1      }
+  50          /*****************************************************
+  51          *函数功能：PWM模式改变
+  52          *输入参数：1.清洁模式，2.美白模式，3.敏感模式 4.停机模式
+  53          *返 回 值：TRUE 成功， FASLE 失败
+  54          *****************************************************/
+C51 COMPILER V9.53.0.0   PWM                                                               06/10/2020 21:47:37 PAGE 2   
+
+  55          void pwm_change_mode(void)
+  56          {
+  57   1      
+  58   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    176    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

@@ -1,0 +1,10 @@
+"STARTUP.obj",
+".\main.obj",
+".\proces_mode.obj",
+".\key.obj",
+".\LED.obj",
+".\PWM.obj",
+".\uart.obj",
+".\Delay.obj" 
+TO "VIGO_TOOTHBRUSH" 
+RAMSIZE(256) 

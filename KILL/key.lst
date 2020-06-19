@@ -1,0 +1,170 @@
+C51 COMPILER V9.53.0.0   KEY                                                               06/10/2020 21:47:37 PAGE 1   
+
+
+C51 COMPILER V9.53.0.0, COMPILATION OF MODULE KEY
+OBJECT MODULE PLACED IN .\key.obj
+COMPILER INVOKED BY: d:\Keil_v5\C51\BIN\C51.EXE ..\BSP\key.c OPTIMIZE(8,SPEED) BROWSE INCDIR(..\BSP;..\COMMON) DEBUG OBJ
+                    -ECTEXTEND PRINT(.\key.lst) TABS(2) OBJECT(.\key.obj)
+
+line level    source
+
+   1          #include "header.h"
+   2          
+   3          
+   4          
+   5          static xdata uint8_t brush_start;//开始刷牙
+   6          
+   7          KEY key;//按键状态
+   8          
+   9          void EXT_INT0(void) interrupt 0
+  10          {   
+  11   1          Timer1_Delay10ms(10);
+  12   1          key.key_time++;
+  13   1          if (key.key_time == LONG_PRESS_TIME)//长按超时
+  14   1          {
+  15   2              printf("long\n");
+  16   2              key.long_press = true;
+  17   2              key.key_time = 0;
+  18   2          }
+  19   1          if(P30 == 1 )
+  20   1          {
+  21   2              if (key.long_press == false)
+  22   2              {
+  23   3                  printf("down \n");
+  24   3                  key.short_press = true;
+  25   3              }
+  26   2              else
+  27   2              {
+  28   3                 key.long_press = false; 
+  29   3              }
+  30   2               key.key_time = 0; 
+  31   2          }  
+  32   1          //set_PD; //休眠
+  33   1      }
+  34          
+  35          /*****************************************************
+  36          *函数功能：初始化外部中断
+  37          *输入参数：NULL
+  38          *返 回 值：NULL
+  39          *****************************************************/
+  40          void exti0_init(void)
+  41          {
+  42   1        P30_PushPull_Mode;
+  43   1        clr_IT0;
+  44   1          //set_EPI;              // Enable pin interrupt
+  45   1        set_EX0;
+  46   1          set_EA;               // global enable bit
+  47   1      }
+  48          
+  49          
+  50          void PinInterrupt_ISR (void) interrupt 7
+  51          {
+  52   1          if(PIF == 0x01)       //管脚0中断
+  53   1          {
+  54   2              PIF &= ~(1 << 0);
+C51 COMPILER V9.53.0.0   KEY                                                               06/10/2020 21:47:37 PAGE 2   
+
+  55   2              printf("pin0 \n");
+  56   2          }
+  57   1          else if(PIF == 0x02 )
+  58   1          {
+  59   2              PIF  &= ~(1 << 1);
+  60   2              printf("pin1 \n");
+  61   2          }
+  62   1          else if(PIF == 0x04)
+  63   1          {
+  64   2              PIF  &= ~(1 << 2);
+  65   2              printf("pin2 \n");
+  66   2          }
+  67   1          else if(PIF == 0x08)
+  68   1          {
+  69   2              PIF  &= ~(1 << 3);
+  70   2              printf("pin3 \n");
+  71   2          }
+  72   1      }
+  73          
+  74          /*****************************************************
+  75          *函数功能：key初始化
+  76          *输入参数：NULL
+  77          *返 回 值：NULL
+  78          *****************************************************/
+  79          void key_init(void)
+  80          {
+  81   1          //上升沿触发 设置为高阻输入 施密特触发输入 加上下拉电阻能增加抗干扰能力 但是高电平也会触发中断
+  82   1          P00_Input_Mode;         //P0.0上升沿触发
+  83   1          set_P0S_0;          //设置施密特触发输入  增加抗干扰能力
+  84   1          Enable_INT_Port0;
+  85   1          Enable_BIT0_RasingEdge_Trig;
+  86   1      
+  87   1          set_EPI;          //引脚中断使能
+  88   1          set_EA;           //开启总中断          
+  89   1      }
+  90          
+  91          //按键处理函数
+  92          void key_dispose(void)
+  93          {
+  94   1          if (key.short_press == true)
+  95   1              brush_start = true;
+  96   1      
+  97   1          if (brush_start == true)//开始刷牙
+  98   1          {
+  99   2              key.brush_timer++;
+ 100   2              if (key.short_press == true)//
+ 101   2              {
+ 102   3                  key.short_press = false; 
+ 103   3                  if (key.brush_timer < MODE_SWITCH_TIME)//开启2S内切换模式
+ 104   3                  {
+ 105   4                      if (key.work_mode == CLOSE && key.gear_memory !=0)
+ 106   4                      {
+ 107   5                         key.work_mode = key.gear_memory;//档位恢复
+ 108   5                      }
+ 109   4                      else
+ 110   4                          key.work_mode++;
+ 111   4                          
+ 112   4                      if (key.work_mode == 5)
+ 113   4                      {
+ 114   5                          key.gear_memory = WHITEN_ONE;//如果没有会导致卡死在四档
+ 115   5                          key.work_mode = CLOSE;
+ 116   5                          printf("close1\n");
+C51 COMPILER V9.53.0.0   KEY                                                               06/10/2020 21:47:37 PAGE 3   
+
+ 117   5                          brush_start = false;//刷牙结束
+ 118   5                      }
+ 119   4                      key.brush_timer = 0;
+ 120   4                      key.short_press = false;
+ 121   4                      printf("cut\n");
+ 122   4                  }
+ 123   3                  else if (key.brush_timer < BRUSH_FINISH_TIME)//开启大于2s，小于120S进行关闭
+ 124   3                  {
+ 125   4                      key.gear_memory = key.work_mode;//档位保存
+ 126   4                      key.work_mode = CLOSE;
+ 127   4                      printf("close2\n");
+ 128   4                      brush_start = false;//刷牙结束 
+ 129   4                      key.brush_timer = 0;          
+ 130   4                  }          
+ 131   3              }       
+ 132   2             if(key.brush_timer == BRUSH_FINISH_TIME) //120S结束后关机
+ 133   2              {
+ 134   3                  key.gear_memory = key.work_mode;//档位保存
+ 135   3                  key.work_mode = CLOSE;
+ 136   3                  brush_start = false;//刷牙结束
+ 137   3                  printf("close\n");
+ 138   3                  key.brush_timer =0;
+ 139   3              }  
+ 140   2          }       
+ 141   1      }
+ 142          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    479    ----
+   CONSTANT SIZE    =     69    ----
+   XDATA SIZE       =      1    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      7    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
